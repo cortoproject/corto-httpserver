@@ -2,6 +2,9 @@
     "id": "corto/httpserver",
     "type": "package",
     "value": {
+        "author": "Sander Mertens",
+        "version": "1.0.0",
+        "description": "HTTP server abstraction",
         "lib": ["crypto"],
         "dependencies": ["corto/httpserver/c", "driver/fmt/json"]
     }    

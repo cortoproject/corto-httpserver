@@ -11,6 +11,7 @@
 #include <corto/corto.h>
 #include <corto/httpserver/_project.h>
 #include <corto/c/c.h>
+#include <driver/fmt/json/json.h>
 
 /* $header() */
 /* Definitions that are required by package headers (native types) go here. */
