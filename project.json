@@ -1,0 +1,8 @@
+{
+    "id": "corto/httpserver",
+    "type": "package",
+    "value": {
+        "lib": ["crypto"],
+        "dependencies": ["corto/httpserver/c", "driver/fmt/json"]
+    }    
+}
