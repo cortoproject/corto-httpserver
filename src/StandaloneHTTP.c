@@ -126,22 +126,26 @@ cb_getVar(httpserver_HTTP_Request *r, corto_string key) {
      * possible to pass NULL to data to obtain length of variable. */
     const struct mg_request_info *req_info = mg_get_request_info(((struct mg_connection*)r->conn));
     const char *query = req_info->query_string;
-    int size = 256, queryLen = strlen(query), ret = 0;
-    char *data = corto_alloc(size);
-    while ((ret = mg_get_var(query, queryLen, key, data, size)) == -2) {
-        size *= 2;
-        data = corto_realloc(data, size);
-    }
+    char *data = NULL;
 
-    if (ret == -1) {
-        corto_dealloc(data);
-        data = NULL;
-    } else {
-        if (!r->garbage) {
-            r->garbage = corto_ll_new();
+    if (query) {
+        int size = 256, queryLen = strlen(query), ret = 0;
+        data = corto_alloc(size);
+        while ((ret = mg_get_var(query, queryLen, key, data, size)) == -2) {
+            size *= 2;
+            data = corto_realloc(data, size);
         }
 
-        corto_ll_append(r->garbage, data);
+        if (ret == -1) {
+            corto_dealloc(data);
+            data = NULL;
+        } else {
+            if (!r->garbage) {
+                r->garbage = corto_ll_new();
+            }
+
+            corto_ll_append(r->garbage, data);
+        }
     }
 
     if (!data) {
