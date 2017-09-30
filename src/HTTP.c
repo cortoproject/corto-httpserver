@@ -145,10 +145,11 @@ void httpserver_HTTP_doRequest(
 
         int prefixLength = strlen(prefix);
         int uriLength = strlen(r->uri) - 1;
+
         if (!prefixLength || /* No prefix */
             /* Check if prefix exactly matches whole elements at start of URI */
             (!memcmp(r->uri + 1, prefix, prefixLength) && 
-            (!r->uri[prefixLength] || (r->uri[prefixLength] == '/'))))
+            (!r->uri[prefixLength + 1] || (r->uri[prefixLength + 1] == '/'))))
         {
             corto_string uri = r->uri + (prefixLength ? (1 + prefixLength) : 0);
             if (prefixLength && (uriLength > prefixLength)) {
@@ -159,14 +160,14 @@ void httpserver_HTTP_doRequest(
              * redirect to URL with trailing '/'. This ensures that pages can be
              * hosted relative to their endpoint, as follow-up requests will
              * include the path to the endpoint. */
-            /*if (s->redirectEndpointToPath && prefix[0] && !uri[0] && !r->uri[prefixLength]) {
+            if (s->redirectEndpointToPath && prefix[0] && !uri[0] && !r->uri[prefixLength + 1]) {
                 corto_trace("auto-redirect '%s' to '%s/'", r->uri, r->uri);
                 httpserver_HTTP_Request_setStatus(r, 301);
                 httpserver_HTTP_Request_setHeader(r, "Location", strarg(
                     "%s/", r->uri
                 ));
                 handled = true;
-            } else*/ {
+            } else {
                 switch(r->method) {
                 case Httpserver_Get:
                     handled = httpserver_Service_onGet(s, c, r, uri);
