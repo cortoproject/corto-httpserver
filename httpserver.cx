@@ -120,6 +120,7 @@ class StandaloneHTTPS : StandaloneHTTP:/
 class Service:/
     port: uint16
     prefix: string
+    redirectEndpointToPath: bool, readonly|local
     server: HTTP, private|local
 
     int16 construct()
