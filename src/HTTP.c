@@ -137,13 +137,21 @@ void httpserver_HTTP_doRequest(
     httpserver_HTTP_Request *r)
 {
     int handled = 0;
+    corto_component_push("HTTP");
 
+    /* Default HTTP status */
     httpserver_HTTP_Request_setStatus(r, 200);
+
+    corto_trace("received %s '%s'",
+        _server_HTTP_getMethodName(r->method),
+        r->uri);
 
     corto_iter it = corto_ll_iter(this->services);
     while (corto_iter_hasNext(&it)) {
         httpserver_Service s = corto_iter_next(&it);
         corto_string prefix = s->prefix ? s->prefix : "";
+
+        corto_component_push(corto_idof(s));
 
         int prefixLength = strlen(prefix);
         int uriLength = strlen(r->uri) - 1;
@@ -156,8 +164,7 @@ void httpserver_HTTP_doRequest(
             corto_string uri = r->uri + (prefixLength ? (1 + prefixLength) : 0);
             bool trailingSlash = uriLength > 1 && r->uri[uriLength] == '/';
             
-            corto_debug("HTTP: relative uri for '%s' is '%s' (trailingslash = %s)",
-                corto_fullpath(NULL, s),
+            corto_debug("relative uri = '%s' (trailingslash = '%s')",
                 uri,
                 trailingSlash ? "true" : "false");
 
@@ -173,7 +180,7 @@ void httpserver_HTTP_doRequest(
                 ));
                 handled = true;
             } else {
-                corto_trace("HTTP: attempt '%s' '%s' with service '%s'",
+                corto_debug("attempt '%s' '%s' with service '%s'",
                     _server_HTTP_getMethodName(r->method),
                     uri,
                     corto_fullpath(NULL, s));
@@ -199,28 +206,26 @@ void httpserver_HTTP_doRequest(
                 /* Log if method-specific handlers were invoked */
                 if (handled) {
                     corto_ok(
-                      "HTTP: %s: %s '%s' success",
-                      corto_idof(corto_typeof(s)),
+                      "%s '%s' matched",
                       _server_HTTP_getMethodName(r->method),
                       r->uri);
                 }
 
                 /* Log if generic handler was invoked */
                 if (httpserver_Service_onRequest(s, c, r, uri)) {
-                    corto_ok("HTTP: %s: %s '%s'",
-                        corto_idof(corto_typeof(s)),
+                    corto_ok("%s '%s' matched",
                         _server_HTTP_getMethodName(r->method),
                         r->uri);
                     handled = TRUE;
                 }
             }
 
+            corto_component_pop();
+
             if (handled) {
                 break;
             }
-
         }
-
     }
 
     if (!handled) {
@@ -228,9 +233,10 @@ void httpserver_HTTP_doRequest(
         httpserver_HTTP_Request_setStatus(r, 404);
         httpserver_HTTP_Request_reply(r, str);
         corto_dealloc(str);
-        corto_warning("HTTP: %s '%s' not matched (404)", _server_HTTP_getMethodName(r->method), r->uri);
+        corto_warning("%s '%s' not matched (404)", _server_HTTP_getMethodName(r->method), r->uri);
     }
 
+    corto_component_pop();
 }
 
 httpserver_HTTP httpserver_HTTP_get(
