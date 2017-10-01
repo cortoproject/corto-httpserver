@@ -44,7 +44,9 @@ void httpserver_HTTP_addService(
 {
 
     httpserver_ServiceListAppend(this->services, s);
-    corto_ok("HTTP: registered '%s' service", corto_fullpath(NULL, corto_typeof(s)));
+    corto_ok("HTTP: registered '%s' service on '%s'", 
+        corto_fullpath(NULL, corto_typeof(s)),
+        s->prefix);
 
 }
 
@@ -152,15 +154,18 @@ void httpserver_HTTP_doRequest(
             (!r->uri[prefixLength + 1] || (r->uri[prefixLength + 1] == '/'))))
         {
             corto_string uri = r->uri + (prefixLength ? (1 + prefixLength) : 0);
-            if (prefixLength && (uriLength > prefixLength)) {
-                uri += 1;
-            }
+            bool trailingSlash = uriLength > 1 && r->uri[uriLength] == '/';
+            
+            corto_debug("HTTP: relative uri for '%s' is '%s' (trailingslash = %s)",
+                corto_fullpath(NULL, s),
+                uri,
+                trailingSlash ? "true" : "false");
 
             /* If requesting the root of an endpoint without trailing '/',
              * redirect to URL with trailing '/'. This ensures that pages can be
              * hosted relative to their endpoint, as follow-up requests will
              * include the path to the endpoint. */
-            if (s->redirectEndpointToPath && prefix[0] && !uri[0] && !r->uri[prefixLength + 1]) {
+            if (s->redirectEndpointToPath && prefix[0] && !trailingSlash && !uri[0]) {
                 corto_trace("auto-redirect '%s' to '%s/'", r->uri, r->uri);
                 httpserver_HTTP_Request_setStatus(r, 301);
                 httpserver_HTTP_Request_setHeader(r, "Location", strarg(
@@ -168,6 +173,11 @@ void httpserver_HTTP_doRequest(
                 ));
                 handled = true;
             } else {
+                corto_trace("HTTP: attempt '%s' '%s' with service '%s'",
+                    _server_HTTP_getMethodName(r->method),
+                    uri,
+                    corto_fullpath(NULL, s));
+
                 switch(r->method) {
                 case Httpserver_Get:
                     handled = httpserver_Service_onGet(s, c, r, uri);
@@ -189,7 +199,7 @@ void httpserver_HTTP_doRequest(
                 /* Log if method-specific handlers were invoked */
                 if (handled) {
                     corto_ok(
-                      "HTTP: %s: %s '%s'",
+                      "HTTP: %s: %s '%s' success",
                       corto_idof(corto_typeof(s)),
                       _server_HTTP_getMethodName(r->method),
                       r->uri);
