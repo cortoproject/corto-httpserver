@@ -153,6 +153,9 @@ void httpserver_HTTP_doRequest(
 
         corto_component_push(corto_idof(s));
 
+        /* Reset HTTP status for each attempt */
+        httpserver_HTTP_Request_setStatus(r, 200);
+
         int prefixLength = strlen(prefix);
         int uriLength = strlen(r->uri) - 1;
 
