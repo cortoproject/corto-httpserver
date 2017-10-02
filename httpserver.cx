@@ -34,6 +34,7 @@ class HTTP:/
         // Method wrappers for delegate
         void setHeader(string key, string val)
         void setStatus(uint16 status)
+        uint16 getStatus()
         void setCookie(string key, string value)
         void reply(string msg)
         void badRequest(string msg)
@@ -49,6 +50,7 @@ class HTTP:/
         file: bool, private|local
         garbage: list{string}, private|local // to clean when request is done
         ctx: word, private|local
+        status: uint16
 
         // Delegate members
         m_setHeader: d_setHeader, private|local
