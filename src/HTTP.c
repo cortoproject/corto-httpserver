@@ -220,12 +220,13 @@ void httpserver_HTTP_doRequest(
                 }
             }
 
-            corto_component_pop();
-
             if (handled) {
+                corto_component_pop();
                 break;
             }
         }
+        
+        corto_component_pop();
     }
 
     if (!handled) {
