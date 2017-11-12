@@ -209,7 +209,7 @@ httpserver_HTTP httpserver_HTTP_get(
 {
     corto_int32 i = 0;
 
-    corto_mutexLock(&serverLock);
+    corto_mutex_lock(&serverLock);
 
     while ((i < SERVER_MAX_SERVERS) &&
            (servers[i].port != port))
@@ -217,7 +217,7 @@ httpserver_HTTP httpserver_HTTP_get(
         i++;
     }
 
-    corto_mutexUnlock(&serverLock);
+    corto_mutex_unlock(&serverLock);
     if (i >= SERVER_MAX_SERVERS) {
         return NULL;
     }
@@ -242,7 +242,7 @@ bool httpserver_HTTP_set(
     corto_int32 i = 0;
     corto_bool result = TRUE;
 
-    corto_mutexLock(&serverLock);
+    corto_mutex_lock(&serverLock);
 
     while ((i < SERVER_MAX_SERVERS) &&
            (servers[i].port &&
@@ -266,7 +266,7 @@ bool httpserver_HTTP_set(
 
     }
 
-    corto_mutexUnlock(&serverLock);
+    corto_mutex_unlock(&serverLock);
     corto_ok("HTTP: started server on port %d", port);
     return result;
 }

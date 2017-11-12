@@ -28,7 +28,7 @@ int16_t httpserver_Files_onRequest(
         this->path,
         request);
 
-    if (corto_fileTest("%s", file)) {
+    if (corto_file_test("%s", file)) {
         corto_trace("Files: serving '%s'", file);
         httpserver_HTTP_Request_sendfile(r, file);
     } else {
