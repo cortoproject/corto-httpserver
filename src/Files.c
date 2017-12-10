@@ -8,6 +8,9 @@ int16_t httpserver_Files_construct(
         corto_ptr_setstr(&this->path, ".");
     }
 
+    /* Redirect requests to http://endpoint to http://endpoint/ */
+    httpserver_Service(this)->redirectEndpointToPath = true;
+
     return corto_super_construct(this);
 }
 

@@ -3,9 +3,12 @@
     "type": "package",
     "value": {
         "author": "Sander Mertens",
+        "organization": "cortoproject",
+        "repository": "https://github.com/cortoproject/httpserver",
+        "license": "MIT",        
+        "description": "Framework for building HTTP-based services",
         "version": "1.0.0",
-        "description": "HTTP server abstraction",
-        "lib": ["crypto", "dl", "pthread"],
-        "use": ["corto/httpserver/c", "driver/fmt/json"]
-    }    
+        "lib": ["pthread", "dl"],
+        "use": ["corto/httpserver/c"]
+    }
 }

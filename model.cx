@@ -1,4 +1,4 @@
-#package corto/httpserver
+in package corto/httpserver
 
 string random(uint16 n)
 string typedescriptor(lang/type type)
@@ -34,6 +34,7 @@ class HTTP:/
         // Method wrappers for delegate
         void setHeader(string key, string val)
         void setStatus(uint16 status)
+        uint16 getStatus()
         void setCookie(string key, string value)
         void reply(string msg)
         void badRequest(string msg)
@@ -49,6 +50,7 @@ class HTTP:/
         file: bool, private|local
         garbage: list{string}, private|local // to clean when request is done
         ctx: word, private|local
+        status: uint16
 
         // Delegate members
         m_setHeader: d_setHeader, private|local
@@ -120,6 +122,7 @@ class StandaloneHTTPS : StandaloneHTTP:/
 class Service:/
     port: uint16
     prefix: string
+    redirectEndpointToPath: bool, readonly|local
     server: HTTP, private|local
 
     int16 construct()
@@ -140,4 +143,3 @@ class Files: Service:/
     path: string
     int16 construct()
     int16 onRequest(HTTP/Connection c, HTTP/Request r, string uri) override
-

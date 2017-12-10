@@ -154,3 +154,10 @@ int httpserverMain(int argc, char *argv[]) {
     return 0;
 }
 
+int cortomain(int argc, char *argv[]) {
+
+    /* Insert implementation */
+    
+    return 0;
+}
+

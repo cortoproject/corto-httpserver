@@ -44,7 +44,9 @@ void httpserver_HTTP_addService(
 {
 
     httpserver_ServiceListAppend(this->services, s);
-    corto_ok("HTTP: registered '%s' service", corto_fullpath(NULL, corto_typeof(s)));
+    corto_ok("HTTP: registered '%s' service on '%s'", 
+        corto_fullpath(NULL, corto_typeof(s)),
+        s->prefix);
 
 }
 
@@ -135,63 +137,99 @@ void httpserver_HTTP_doRequest(
     httpserver_HTTP_Request *r)
 {
     int handled = 0;
+    corto_log_push("HTTP");
 
+    /* Default HTTP status */
     httpserver_HTTP_Request_setStatus(r, 200);
+
+    corto_trace("received %s '%s'",
+        _server_HTTP_getMethodName(r->method),
+        r->uri);
 
     corto_iter it = corto_ll_iter(this->services);
     while (corto_iter_hasNext(&it)) {
         httpserver_Service s = corto_iter_next(&it);
         corto_string prefix = s->prefix ? s->prefix : "";
 
+        corto_log_push(corto_idof(s));
+
+        /* Reset HTTP status for each attempt */
+        httpserver_HTTP_Request_setStatus(r, 200);
+
         int prefixLength = strlen(prefix);
         int uriLength = strlen(r->uri) - 1;
-        if (!prefixLength || (!memcmp(r->uri + 1, prefix, prefixLength))) {
+
+        if (!prefixLength || /* No prefix */
+            /* Check if prefix exactly matches whole elements at start of URI */
+            (!memcmp(r->uri + 1, prefix, prefixLength) && 
+            (!r->uri[prefixLength + 1] || (r->uri[prefixLength + 1] == '/'))))
+        {
             corto_string uri = r->uri + (prefixLength ? (1 + prefixLength) : 0);
-            if (prefixLength && (uriLength > prefixLength)) {
-                uri += 1;
-            }
+            bool trailingSlash = uriLength > 1 && r->uri[uriLength] == '/';
+            
+            corto_debug("relative uri = '%s' (trailingslash = '%s')",
+                uri,
+                trailingSlash ? "true" : "false");
 
-            switch(r->method) {
-            case Httpserver_Get:
-                handled = httpserver_Service_onGet(s, c, r, uri);
-                break;
-            case Httpserver_Post:
-                handled = httpserver_Service_onPost(s, c, r, uri);
-                break;
-            case Httpserver_Put:
-                handled = httpserver_Service_onPut(s, c, r, uri);
-                break;
-            case Httpserver_Delete:
-                handled = httpserver_Service_onDelete(s, c, r, uri);
-                break;
-            default:
-                break;
-            }
-
-            /* Log if method-specific handlers were invoked */
-            if (handled) {
-                corto_ok(
-                  "HTTP: %s: %s '%s'",
-                  corto_idof(corto_typeof(s)),
-                  _server_HTTP_getMethodName(r->method),
-                  r->uri);
-            }
-
-            /* Log if generic handler was invoked */
-            if (httpserver_Service_onRequest(s, c, r, uri)) {
-                corto_ok("HTTP: %s: %s '%s'",
-                    corto_idof(corto_typeof(s)),
+            /* If requesting the root of an endpoint without trailing '/',
+             * redirect to URL with trailing '/'. This ensures that pages can be
+             * hosted relative to their endpoint, as follow-up requests will
+             * include the path to the endpoint. */
+            if (s->redirectEndpointToPath && prefix[0] && !trailingSlash && !uri[0]) {
+                corto_trace("auto-redirect '%s' to '%s/'", r->uri, r->uri);
+                httpserver_HTTP_Request_setStatus(r, 301);
+                httpserver_HTTP_Request_setHeader(r, "Location", strarg(
+                    "%s/", r->uri
+                ));
+                handled = true;
+            } else {
+                corto_debug("attempt '%s' '%s' with service '%s'",
                     _server_HTTP_getMethodName(r->method),
-                    r->uri);
-                handled = TRUE;
+                    uri,
+                    corto_fullpath(NULL, s));
+
+                switch(r->method) {
+                case Httpserver_Get:
+                    handled = httpserver_Service_onGet(s, c, r, uri);
+                    break;
+                case Httpserver_Post:
+                    handled = httpserver_Service_onPost(s, c, r, uri);
+                    break;
+                case Httpserver_Put:
+                    handled = httpserver_Service_onPut(s, c, r, uri);
+                    break;
+                case Httpserver_Delete:
+                    handled = httpserver_Service_onDelete(s, c, r, uri);
+                    break;
+                default:
+                    break;
+                }
+
+
+                /* Log if method-specific handlers were invoked */
+                if (handled) {
+                    corto_ok(
+                      "%s '%s' matched",
+                      _server_HTTP_getMethodName(r->method),
+                      r->uri);
+                }
+
+                /* Log if generic handler was invoked */
+                if (httpserver_Service_onRequest(s, c, r, uri)) {
+                    corto_ok("%s '%s' matched",
+                        _server_HTTP_getMethodName(r->method),
+                        r->uri);
+                    handled = TRUE;
+                }
             }
 
             if (handled) {
+                corto_log_pop();
                 break;
             }
-
         }
-
+        
+        corto_log_pop();
     }
 
     if (!handled) {
@@ -199,9 +237,10 @@ void httpserver_HTTP_doRequest(
         httpserver_HTTP_Request_setStatus(r, 404);
         httpserver_HTTP_Request_reply(r, str);
         corto_dealloc(str);
-        corto_warning("HTTP: %s '%s' not matched (404)", _server_HTTP_getMethodName(r->method), r->uri);
+        corto_warning("%s '%s' not matched (404)", _server_HTTP_getMethodName(r->method), r->uri);
     }
 
+    corto_log_pop();
 }
 
 httpserver_HTTP httpserver_HTTP_get(

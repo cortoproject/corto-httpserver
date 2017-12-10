@@ -1,7 +1,6 @@
 /* This is a managed file. Do not delete this comment. */
 
 #include <corto/httpserver/httpserver.h>
-
 static
 corto_bool parseCookie(const char *header, const char *key, char * out, size_t *out_len)
 {
@@ -127,7 +126,20 @@ void httpserver_HTTP_Request_setStatus(
     httpserver_HTTP_Request* this,
     uint16_t status)
 {
+    this->status = status;
     httpserver_HTTP_Request_d_setStatusCall(&this->m_setStatus, this, status);
 }
 
+uint16_t httpserver_HTTP_Request_getStatus(
+    httpserver_HTTP_Request* this)
+{
+    return this->status;
+}
+
+void httpserver_HTTP_Request_seterr(
+    httpserver_HTTP_Request* this,
+    corto_string msg)
+{
+    /* Insert implementation */
+}
 
