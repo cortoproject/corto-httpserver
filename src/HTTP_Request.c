@@ -135,11 +135,3 @@ uint16_t httpserver_HTTP_Request_getStatus(
 {
     return this->status;
 }
-
-void httpserver_HTTP_Request_seterr(
-    httpserver_HTTP_Request* this,
-    corto_string msg)
-{
-    /* Insert implementation */
-}
-

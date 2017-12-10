@@ -44,7 +44,7 @@ void httpserver_HTTP_addService(
 {
 
     httpserver_ServiceListAppend(this->services, s);
-    corto_ok("HTTP: registered '%s' service on '%s'", 
+    corto_ok("HTTP: registered '%s' service on '%s'",
         corto_fullpath(NULL, corto_typeof(s)),
         s->prefix);
 
@@ -161,12 +161,12 @@ void httpserver_HTTP_doRequest(
 
         if (!prefixLength || /* No prefix */
             /* Check if prefix exactly matches whole elements at start of URI */
-            (!memcmp(r->uri + 1, prefix, prefixLength) && 
+            (!memcmp(r->uri + 1, prefix, prefixLength) &&
             (!r->uri[prefixLength + 1] || (r->uri[prefixLength + 1] == '/'))))
         {
             corto_string uri = r->uri + (prefixLength ? (1 + prefixLength) : 0);
             bool trailingSlash = uriLength > 1 && r->uri[uriLength] == '/';
-            
+
             corto_debug("relative uri = '%s' (trailingslash = '%s')",
                 uri,
                 trailingSlash ? "true" : "false");
@@ -228,7 +228,7 @@ void httpserver_HTTP_doRequest(
                 break;
             }
         }
-        
+
         corto_log_pop();
     }
 
@@ -319,5 +319,3 @@ void httpserver_HTTP_write_v(
     /* << Insert implementation >> */
 
 }
-
-
