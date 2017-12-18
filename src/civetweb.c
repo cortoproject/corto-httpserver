@@ -247,7 +247,6 @@ static void DEBUG_TRACE_FUNC(const char *func,
 #include <mach/clock.h>
 #include <mach/mach.h>
 #include <mach/mach_time.h>
-#include <pthread.h>
 
 /* clock_gettime is not implemented on OSX prior to 10.12 */
 static int
@@ -666,7 +665,9 @@ typedef unsigned short int in_port_t;
 #if !defined(NO_SSL_DL) && !defined(NO_SSL)
 #include <dlfcn.h>
 #endif
-//#include <pthread.h>
+#ifdef __linux__
+#include <pthread.h>
+#endif
 #if defined(__MACH__)
 #define SSL_LIB "libssl.dylib"
 #define CRYPTO_LIB "libcrypto.dylib"
