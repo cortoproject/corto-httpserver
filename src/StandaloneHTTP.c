@@ -1,7 +1,7 @@
 /* This is a managed file. Do not delete this comment. */
 
-#include <corto/httpserver/httpserver.h>
 #include <src/civetweb.h>
+#include <corto/httpserver/httpserver.h>
 #define DOCUMENT_ROOT "."
 static int
 cb_logMessage(const struct mg_connection *conn, const char *msg)
@@ -12,15 +12,15 @@ cb_logMessage(const struct mg_connection *conn, const char *msg)
 
 static httpserver_HTTP_Method methodFromStr(const char *method) {
     httpserver_HTTP_Method result;
-    if (!strcmp(method, "NONE")) result = Httpserver_None;    
-    else if (!strcmp(method, "GET")) result = Httpserver_Get;    
-    else if (!strcmp(method, "HEAD")) result = Httpserver_Head;    
+    if (!strcmp(method, "NONE")) result = Httpserver_None;
+    else if (!strcmp(method, "GET")) result = Httpserver_Get;
+    else if (!strcmp(method, "HEAD")) result = Httpserver_Head;
     else if (!strcmp(method, "POST")) result = Httpserver_Post;
     else if (!strcmp(method, "PUT")) result = Httpserver_Put;
     else if (!strcmp(method, "DELETE")) result = Httpserver_Delete;
     else if (!strcmp(method, "TRACE")) result = Httpserver_Trace;
     else if (!strcmp(method, "OPTIONS")) result = Httpserver_Options;
-    else if (!strcmp(method, "CONNECT")) result = Httpserver_Connect;   
+    else if (!strcmp(method, "CONNECT")) result = Httpserver_Connect;
     else if (!strcmp(method, "PATCH")) result = Httpserver_Patch;
     else result = Httpserver_None;
     return result;
@@ -31,7 +31,7 @@ cb_wsConnect(const struct mg_connection *conn, void *cbdata)
 {
     httpserver_HTTP_Connection c = mg_get_user_connection_data(conn);
     const struct mg_request_info *req_info = mg_get_request_info(conn);
-    httpserver_StandaloneHTTP this = req_info->user_data;    
+    httpserver_StandaloneHTTP this = req_info->user_data;
     if (this) {
         corto_assertObject(this);
     }
@@ -63,7 +63,7 @@ cb_wsData(struct mg_connection *conn,
     const struct mg_request_info *req_info = mg_get_request_info(conn);
     httpserver_StandaloneHTTP this = req_info->user_data;
     httpserver_HTTP_Connection c = mg_get_user_connection_data(conn);
-    
+
     if (c && bits == 129) { /* Text message */
         char *msg = corto_alloc(len + 1);
         memcpy(msg, data, len);
@@ -79,7 +79,7 @@ static void
 cb_wsClose(const struct mg_connection *conn, void *cbdata)
 {
     const struct mg_request_info *req_info = mg_get_request_info(conn);
-    httpserver_StandaloneHTTP this = req_info->user_data;    
+    httpserver_StandaloneHTTP this = req_info->user_data;
     httpserver_HTTP_Connection c = mg_get_user_connection_data(conn);
     safe_httpserver_HTTP_doClose(this, c);
     corto_delete(c);
@@ -90,36 +90,36 @@ struct RequestCtx {
     corto_buffer headers;
     corto_buffer msg;
 };
-static void 
+static void
 cb_setHeader(httpserver_HTTP_Request *r, corto_string key, corto_string val) {
     struct RequestCtx *ctx = (struct RequestCtx*)r->ctx;
-    corto_buffer_append(&ctx->headers, "%s: %s\r\n", key, val); 
+    corto_buffer_append(&ctx->headers, "%s: %s\r\n", key, val);
 }
 
-static void 
+static void
 cb_setStatus(httpserver_HTTP_Request *r, corto_uint16 status) {
     struct RequestCtx *ctx = (struct RequestCtx*)r->ctx;
     ctx->status = status;
 }
 
-static corto_string 
+static corto_string
 cb_getHeader(httpserver_HTTP_Request *r, corto_string key) {
     return (char*)mg_get_header((struct mg_connection*)r->conn, key);
 }
 
-static void 
+static void
 cb_reply(httpserver_HTTP_Request *r, corto_string msg) {
     struct RequestCtx *ctx = (struct RequestCtx*)r->ctx;
     corto_buffer_appendstr(&ctx->msg, msg);
 }
 
-static void 
+static void
 cb_sendFile(httpserver_HTTP_Request *r, corto_string file) {
     mg_send_file((struct mg_connection *)r->conn, file);
     r->file = TRUE;
 }
 
-static corto_string 
+static corto_string
 cb_getVar(httpserver_HTTP_Request *r, corto_string key) {
     /* This is a bit costly for variables with large values, but better than
      * returning a partial result. Should modify/extend civetweb so that it is
@@ -230,7 +230,9 @@ int16_t httpserver_StandaloneHTTP_construct(
         "request_timeout_ms", "10000",
         "error_log_file", "error.log",
         "enable_auth_domain_check", "no",
+#if defined(__linux__)
         "allow_sendfile_call", this->enable_sendfile ? "true" : "false",
+#endif
          NULL};
     struct mg_callbacks callbacks;
     struct mg_context *ctx;
@@ -281,7 +283,7 @@ void httpserver_StandaloneHTTP_destruct(
 {
 
     this->exiting = TRUE;
-    
+
     mg_stop((struct mg_context*)this->server);
     corto_thread_join((corto_thread)this->thread, NULL);
     corto_super_destruct(this);
@@ -292,5 +294,5 @@ void httpserver_StandaloneHTTP_write(
     httpserver_HTTP_Connection c,
     corto_string msg)
 {
-    mg_websocket_write((struct mg_connection *)c->conn, WEBSOCKET_OPCODE_TEXT, msg, strlen(msg));
+    mg_websocket_write((struct mg_connection *)c->conn, MG_WEBSOCKET_OPCODE_TEXT, msg, strlen(msg));
 }

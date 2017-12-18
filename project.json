@@ -5,10 +5,11 @@
         "author": "Sander Mertens",
         "organization": "cortoproject",
         "repository": "https://github.com/cortoproject/httpserver",
-        "license": "MIT",        
+        "license": "MIT",
         "description": "Framework for building HTTP-based services",
         "version": "1.0.0",
         "lib": ["pthread", "dl"],
-        "use": ["corto/httpserver/c"]
+        "use": ["corto/httpserver/c"],
+        "cflags": ["-DUSE_WEBSOCKET"]
     }
 }
