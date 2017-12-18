@@ -248,6 +248,10 @@ static void DEBUG_TRACE_FUNC(const char *func,
 #include <mach/mach.h>
 #include <mach/mach_time.h>
 
+#ifndef __linux__
+#include <pthread.h>
+#endif
+
 /* clock_gettime is not implemented on OSX prior to 10.12 */
 static int
 _civet_clock_gettime(int clk_id, struct timespec *t)
@@ -7265,7 +7269,6 @@ get_month_index(const char *s)
 
 	return -1;
 }
-
 
 /* Parse UTC date-time string, and return the corresponding time_t value. */
 static time_t
