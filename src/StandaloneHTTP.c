@@ -63,7 +63,6 @@ cb_wsData(struct mg_connection *conn,
     const struct mg_request_info *req_info = mg_get_request_info(conn);
     httpserver_StandaloneHTTP this = req_info->user_data;
     httpserver_HTTP_Connection c = mg_get_user_connection_data(conn);
-
     if (c && bits == 129) { /* Text message */
         char *msg = corto_alloc(len + 1);
         memcpy(msg, data, len);
@@ -127,7 +126,6 @@ cb_getVar(httpserver_HTTP_Request *r, corto_string key) {
     const struct mg_request_info *req_info = mg_get_request_info(((struct mg_connection*)r->conn));
     const char *query = req_info->query_string;
     char *data = NULL;
-
     if (query) {
         int size = 256, queryLen = strlen(query), ret = 0;
         data = corto_alloc(size);
@@ -146,6 +144,7 @@ cb_getVar(httpserver_HTTP_Request *r, corto_string key) {
 
             corto_ll_append(r->garbage, data);
         }
+
     }
 
     if (!data) {
@@ -292,7 +291,8 @@ void httpserver_StandaloneHTTP_destruct(
 void httpserver_StandaloneHTTP_write(
     httpserver_StandaloneHTTP this,
     httpserver_HTTP_Connection c,
-    corto_string msg)
+    const char *msg)
 {
     mg_websocket_write((struct mg_connection *)c->conn, MG_WEBSOCKET_OPCODE_TEXT, msg, strlen(msg));
 }
+

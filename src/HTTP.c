@@ -52,7 +52,7 @@ void httpserver_HTTP_addService(
 
 void httpserver_HTTP_broadcast(
     httpserver_HTTP this,
-    corto_string msg)
+    const char *msg)
 {
     corto_debug("HTTP: broadcast '%s'", msg);
 
@@ -89,7 +89,7 @@ void httpserver_HTTP_doClose(
 void httpserver_HTTP_doMessage(
     httpserver_HTTP this,
     httpserver_HTTP_Connection c,
-    corto_string msg)
+    const char *msg)
 {
 
     corto_iter it = corto_ll_iter(this->services);
@@ -187,7 +187,6 @@ void httpserver_HTTP_doRequest(
                     _server_HTTP_getMethodName(r->method),
                     uri,
                     corto_fullpath(NULL, s));
-
                 switch(r->method) {
                 case Httpserver_Get:
                     handled = httpserver_Service_onGet(s, c, r, uri);
@@ -205,7 +204,6 @@ void httpserver_HTTP_doRequest(
                     break;
                 }
 
-
                 /* Log if method-specific handlers were invoked */
                 if (handled) {
                     corto_ok(
@@ -221,12 +219,14 @@ void httpserver_HTTP_doRequest(
                         r->uri);
                     handled = TRUE;
                 }
+
             }
 
             if (handled) {
                 corto_log_pop();
                 break;
             }
+
         }
 
         corto_log_pop();
@@ -313,9 +313,10 @@ bool httpserver_HTTP_set(
 void httpserver_HTTP_write_v(
     httpserver_HTTP this,
     httpserver_HTTP_Connection c,
-    corto_string msg)
+    const char *msg)
 {
 
     /* << Insert implementation >> */
 
 }
+

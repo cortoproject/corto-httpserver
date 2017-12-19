@@ -10,7 +10,6 @@ int16_t httpserver_Files_construct(
 
     /* Redirect requests to http://endpoint to http://endpoint/ */
     httpserver_Service(this)->redirectEndpointToPath = true;
-
     return corto_super_construct(this);
 }
 
@@ -18,9 +17,9 @@ int16_t httpserver_Files_onRequest(
     httpserver_Files this,
     httpserver_HTTP_Connection c,
     httpserver_HTTP_Request *r,
-    corto_string uri)
+    const char *uri)
 {
-    char *request = uri;
+    const char *request = uri;
 
     if (!uri || !strlen(uri) || !strcmp(uri, "/")) {
         request = "index.html";
@@ -30,7 +29,6 @@ int16_t httpserver_Files_onRequest(
         "%s/%s",
         this->path,
         request);
-
     if (corto_file_test("%s", file)) {
         corto_trace("Files: serving '%s'", file);
         httpserver_HTTP_Request_sendfile(r, file);
@@ -44,4 +42,3 @@ int16_t httpserver_Files_onRequest(
     corto_dealloc(file);
     return 1;
 }
-

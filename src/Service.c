@@ -48,7 +48,7 @@ int16_t httpserver_Service_onDelete_v(
     httpserver_Service this,
     httpserver_HTTP_Connection c,
     httpserver_HTTP_Request *r,
-    corto_string uri)
+    const char *uri)
 {
     return 0;
 }
@@ -57,7 +57,7 @@ int16_t httpserver_Service_onGet_v(
     httpserver_Service this,
     httpserver_HTTP_Connection c,
     httpserver_HTTP_Request *r,
-    corto_string uri)
+    const char *uri)
 {
     return 0;
 }
@@ -65,7 +65,7 @@ int16_t httpserver_Service_onGet_v(
 void httpserver_Service_onMessage_v(
     httpserver_Service this,
     httpserver_HTTP_Connection c,
-    corto_string msg)
+    const char *msg)
 {
 
     /* virtual method */
@@ -93,7 +93,7 @@ int16_t httpserver_Service_onPost_v(
     httpserver_Service this,
     httpserver_HTTP_Connection c,
     httpserver_HTTP_Request *r,
-    corto_string uri)
+    const char *uri)
 {
     return 0;
 }
@@ -102,7 +102,7 @@ int16_t httpserver_Service_onPut_v(
     httpserver_Service this,
     httpserver_HTTP_Connection c,
     httpserver_HTTP_Request *r,
-    corto_string uri)
+    const char *uri)
 {
     return 0;
 }
@@ -111,7 +111,7 @@ int16_t httpserver_Service_onRequest_v(
     httpserver_Service this,
     httpserver_HTTP_Connection c,
     httpserver_HTTP_Request *r,
-    corto_string uri)
+    const char *uri)
 {
 
     return 0;

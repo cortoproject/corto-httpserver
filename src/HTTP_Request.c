@@ -49,7 +49,7 @@ corto_bool parseCookie(const char *header, const char *key, char * out, size_t *
 
 void httpserver_HTTP_Request_badRequest(
     httpserver_HTTP_Request* this,
-    corto_string msg)
+    const char *msg)
 {
     httpserver_HTTP_Request_setStatus(this, 400);
     httpserver_HTTP_Request_setHeader(this, "Content-Type", "text/html; charset=UTF-8");
@@ -58,7 +58,7 @@ void httpserver_HTTP_Request_badRequest(
 
 corto_string httpserver_HTTP_Request_getCookie(
     httpserver_HTTP_Request* this,
-    corto_string key)
+    const char *key)
 {
     size_t size = 0;
     char *result = NULL;
@@ -74,7 +74,7 @@ corto_string httpserver_HTTP_Request_getCookie(
 
 corto_string httpserver_HTTP_Request_getHeader(
     httpserver_HTTP_Request* this,
-    corto_string key)
+    const char *key)
 {
     corto_string result;
     httpserver_HTTP_Request_d_getHeaderCall(&this->m_getHeader, &result, this, key);
@@ -83,7 +83,7 @@ corto_string httpserver_HTTP_Request_getHeader(
 
 corto_string httpserver_HTTP_Request_getVar(
     httpserver_HTTP_Request* this,
-    corto_string key)
+    const char *key)
 {
     corto_string result = NULL;
     httpserver_HTTP_Request_d_getVarCall(&this->m_getVar, &result, this, key);
@@ -92,22 +92,22 @@ corto_string httpserver_HTTP_Request_getVar(
 
 void httpserver_HTTP_Request_reply(
     httpserver_HTTP_Request* this,
-    corto_string msg)
+    const char *msg)
 {
     httpserver_HTTP_Request_d_replyCall(&this->m_reply, this, msg);
 }
 
 void httpserver_HTTP_Request_sendfile(
     httpserver_HTTP_Request* this,
-    corto_string file)
+    const char *file)
 {
     httpserver_HTTP_Request_d_sendFileCall(&this->m_sendFile, this, file);
 }
 
 void httpserver_HTTP_Request_setCookie(
     httpserver_HTTP_Request* this,
-    corto_string key,
-    corto_string value)
+    const char *key,
+    const char *value)
 {
     char *cookie = corto_asprintf("%s=%s", key, value);
     httpserver_HTTP_Request_setHeader(this, "Set-Cookie", cookie);
@@ -116,8 +116,8 @@ void httpserver_HTTP_Request_setCookie(
 
 void httpserver_HTTP_Request_setHeader(
     httpserver_HTTP_Request* this,
-    corto_string key,
-    corto_string val)
+    const char *key,
+    const char *val)
 {
     httpserver_HTTP_Request_d_setHeaderCall(&this->m_setHeader, this, key, val);
 }
@@ -135,3 +135,4 @@ uint16_t httpserver_HTTP_Request_getStatus(
 {
     return this->status;
 }
+
