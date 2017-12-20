@@ -33,7 +33,7 @@ cb_wsConnect(const struct mg_connection *conn, void *cbdata)
     const struct mg_request_info *req_info = mg_get_request_info(conn);
     httpserver_StandaloneHTTP this = req_info->user_data;
     if (this) {
-        corto_assertObject(this);
+        corto_assert_object(this);
     }
 
     if (!c) {
@@ -41,7 +41,7 @@ cb_wsConnect(const struct mg_connection *conn, void *cbdata)
         c->conn = (corto_word)conn;
         mg_set_user_connection_data((struct mg_connection *)conn, c);
     } else {
-        corto_assertObject(c);
+        corto_assert_object(c);
     }
 
     safe_httpserver_HTTP_doOpen(this, c);
