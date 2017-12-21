@@ -5,7 +5,7 @@ int16_t httpserver_Files_construct(
     httpserver_Files this)
 {
     if (!this->path) {
-        corto_ptr_setstr(&this->path, ".");
+        corto_set_str(&this->path, ".");
     }
 
     /* Redirect requests to http://endpoint to http://endpoint/ */
