@@ -58,7 +58,7 @@ void httpserver_HTTP_broadcast(
 
     corto_iter it = corto_ll_iter(this->connections);
     while (corto_iter_hasNext(&it)) {
-        httpserver_HTTP c = corto_iter_next(&it);
+        httpserver_HTTP_Connection c = corto_iter_next(&it);
         httpserver_HTTP_write(this, c, msg);
     }
 
@@ -319,4 +319,3 @@ void httpserver_HTTP_write_v(
     /* << Insert implementation >> */
 
 }
-
