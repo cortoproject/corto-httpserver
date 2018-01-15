@@ -236,15 +236,15 @@ int16_t httpserver_StandaloneHTTP_construct(
     struct mg_callbacks callbacks;
     struct mg_context *ctx;
     if (!mg_check_feature(8)) {
-        corto_warning("StandaloneHTTP: IPv6 not supported");
+        corto_trace("StandaloneHTTP: IPv6 not supported");
     }
 
     if (!mg_check_feature(16)) {
-        corto_warning("StandaloneHTTP: websockets not supported");
+        corto_trace("StandaloneHTTP: websockets not supported");
     }
 
     if (!mg_check_feature(2)) {
-        corto_warning("StandaloneHTTP: SSL not supported");
+        corto_trace("StandaloneHTTP: SSL not supported");
     }
 
     if (!safe_httpserver_HTTP_set(httpserver_HTTP(this)->port, this)) {
@@ -295,4 +295,3 @@ void httpserver_StandaloneHTTP_write(
 {
     mg_websocket_write((struct mg_connection *)c->conn, MG_WEBSOCKET_OPCODE_TEXT, msg, strlen(msg));
 }
-
