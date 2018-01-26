@@ -43,7 +43,7 @@ void httpserver_HTTP_addService(
     httpserver_Service s)
 {
 
-    httpserver_ServiceList_append(this->services, s);
+    httpserver_ServiceList__append(this->services, s);
     corto_ok("HTTP: registered '%s' service on '%s'",
         corto_fullpath(NULL, corto_typeof(s)),
         s->prefix);
@@ -83,7 +83,7 @@ void httpserver_HTTP_doClose(
         httpserver_Service_onClose(s, c);
     }
 
-    httpserver_HTTP_ConnectionList_remove(this->connections, c);
+    httpserver_HTTP_ConnectionList__remove(this->connections, c);
 }
 
 void httpserver_HTTP_doMessage(
@@ -105,7 +105,7 @@ void httpserver_HTTP_doOpen(
     httpserver_HTTP_Connection c)
 {
 
-    httpserver_HTTP_ConnectionList_append(this->connections, c);
+    httpserver_HTTP_ConnectionList__append(this->connections, c);
 
     corto_iter it = corto_ll_iter(this->services);
     while (corto_iter_hasNext(&it)) {
@@ -269,7 +269,7 @@ void httpserver_HTTP_removeService(
     httpserver_Service s)
 {
 
-    httpserver_ServiceList_remove(this->services, s);
+    httpserver_ServiceList__remove(this->services, s);
     corto_ok("HTTP: removed %s service", corto_fullpath(NULL, corto_typeof(s)));
 
 }

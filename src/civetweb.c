@@ -2608,7 +2608,7 @@ typedef struct tagTHREADNAME_INFO {
 
 
 static void *
-event_create(void)
+event__create(void)
 {
 	int evhdl = eventfd(0, EFD_CLOEXEC);
 	int *ret;
@@ -2726,7 +2726,7 @@ struct posix_event {
 
 
 static void *
-event_create(void)
+event__create(void)
 {
 	struct posix_event *ret = mg_malloc(sizeof(struct posix_event));
 	if (ret == 0) {
@@ -4657,7 +4657,7 @@ pthread_cond_destroy(pthread_cond_t *cv)
 #ifdef ALTERNATIVE_QUEUE
 FUNCTION_MAY_BE_UNUSED
 static void *
-event_create(void)
+event__create(void)
 {
 	return (void *)CreateEvent(NULL, FALSE, FALSE, NULL);
 }
@@ -17585,7 +17585,7 @@ mg_start(const struct mg_callbacks *callbacks,
 	}
 
 	for (i = 0; (unsigned)i < ctx->cfg_worker_threads; i++) {
-		ctx->client_wait_events[i] = event_create();
+		ctx->client_wait_events[i] = event__create();
 		if (ctx->client_wait_events[i] == 0) {
 			mg_cry_internal(fc(ctx), "Error creating worker event %i", i);
 			while (i > 0) {
