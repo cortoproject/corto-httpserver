@@ -37,7 +37,7 @@ cb_wsConnect(const struct mg_connection *conn, void *cbdata)
     }
 
     if (!c) {
-        c = httpserver_HTTP_ConnectionCreate(NULL, this);
+        c = httpserver_HTTP_Connection_create(NULL, NULL, NULL, this);
         c->conn = (corto_word)conn;
         mg_set_user_connection_data((struct mg_connection *)conn, c);
     } else {
@@ -176,12 +176,12 @@ cb_onRequest(struct mg_connection *conn, void *cbdata)
         .ctx = (corto_word)&ctx
     };
     /* Set request callbacks */
-    httpserver_HTTP_Request_d_setHeaderInitC(&r.m_setHeader, cb_setHeader);
-    httpserver_HTTP_Request_d_setStatusInitC(&r.m_setStatus, cb_setStatus);
-    httpserver_HTTP_Request_d_getHeaderInitC(&r.m_getHeader, cb_getHeader);
-    httpserver_HTTP_Request_d_replyInitC(&r.m_reply, cb_reply);
-    httpserver_HTTP_Request_d_sendFileInitC(&r.m_sendFile, cb_sendFile);
-    httpserver_HTTP_Request_d_getVarInitC(&r.m_getVar, cb_getVar);
+    httpserver_HTTP_Request_d_setHeader_init_c(&r.m_setHeader, cb_setHeader);
+    httpserver_HTTP_Request_d_setStatus_init_c(&r.m_setStatus, cb_setStatus);
+    httpserver_HTTP_Request_d_getHeader_init_c(&r.m_getHeader, cb_getHeader);
+    httpserver_HTTP_Request_d_reply_init_c(&r.m_reply, cb_reply);
+    httpserver_HTTP_Request_d_sendFile_init_c(&r.m_sendFile, cb_sendFile);
+    httpserver_HTTP_Request_d_getVar_init_c(&r.m_getVar, cb_getVar);
     /* Send request to services */
     safe_httpserver_HTTP_doRequest(this, NULL, &r);
     /* Append 'Connection: close' header */
@@ -247,7 +247,7 @@ int16_t httpserver_StandaloneHTTP_construct(
         corto_trace("StandaloneHTTP: SSL not supported");
     }
 
-    if (!safe_httpserver_HTTP_set(httpserver_HTTP(this)->port, this)) {
+    if (!safe_httpserver_HTTP_set_server(httpserver_HTTP(this)->port, this)) {
         corto_throw("port %d already occupied by other server",
             httpserver_HTTP(this)->port);
         goto error;

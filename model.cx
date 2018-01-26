@@ -74,12 +74,12 @@ class HTTP:/
     void removeService(Service s)
 
     // Acquire singleton server for specified port
-    HTTP get(uint16 port) function
+    HTTP get_server(uint16 port) function
 
     // Set a singleton server for a specific port. Returns true if success,
     // false when the slot is already occupied. When NULL is provided for server
     // the slot is reset, and the function will always return TRUE.
-    bool set(uint16 port, HTTP server) function
+    bool set_server(uint16 port, HTTP server) function
 
     // Write a websocket message to an open connection
     void write(HTTP/Connection c, string msg) overridable

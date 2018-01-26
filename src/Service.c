@@ -13,10 +13,10 @@ int16_t httpserver_Service_construct(
     /* Fetch HTTP server for port. If none is registered, automatically create
      * a standalone server */
     while (!server) {
-        server = httpserver_HTTP_get(httpserver_Service(this)->port);
+        server = httpserver_HTTP_get_server(httpserver_Service(this)->port);
         if (!server) {
-            server = httpserver_HTTP(httpserver_StandaloneHTTPCreate(
-                httpserver_Service(this)->port, 50, 5, FALSE));
+            server = httpserver_HTTP(httpserver_StandaloneHTTP_create(NULL, NULL, 
+                httpserver_Service(this)->port, 30, 5, FALSE));
             /* Server can be NULL if another thread registered a server for the
              * same port. Therefore, keep trying until a valid server object has
              * been obtained. */
@@ -117,4 +117,3 @@ int16_t httpserver_Service_onRequest_v(
     return 0;
 
 }
-

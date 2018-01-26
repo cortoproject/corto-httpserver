@@ -77,7 +77,7 @@ corto_string httpserver_HTTP_Request_getHeader(
     const char *key)
 {
     corto_string result;
-    httpserver_HTTP_Request_d_getHeaderCall(&this->m_getHeader, &result, this, key);
+    httpserver_HTTP_Request_d_getHeader_call(&this->m_getHeader, &result, this, key);
     return result;
 }
 
@@ -86,7 +86,7 @@ corto_string httpserver_HTTP_Request_getVar(
     const char *key)
 {
     corto_string result = NULL;
-    httpserver_HTTP_Request_d_getVarCall(&this->m_getVar, &result, this, key);
+    httpserver_HTTP_Request_d_getVar_call(&this->m_getVar, &result, this, key);
     return result;
 }
 
@@ -94,14 +94,14 @@ void httpserver_HTTP_Request_reply(
     httpserver_HTTP_Request* this,
     const char *msg)
 {
-    httpserver_HTTP_Request_d_replyCall(&this->m_reply, this, msg);
+    httpserver_HTTP_Request_d_reply_call(&this->m_reply, this, msg);
 }
 
 void httpserver_HTTP_Request_sendfile(
     httpserver_HTTP_Request* this,
     const char *file)
 {
-    httpserver_HTTP_Request_d_sendFileCall(&this->m_sendFile, this, file);
+    httpserver_HTTP_Request_d_sendFile_call(&this->m_sendFile, this, file);
 }
 
 void httpserver_HTTP_Request_setCookie(
@@ -119,7 +119,7 @@ void httpserver_HTTP_Request_setHeader(
     const char *key,
     const char *val)
 {
-    httpserver_HTTP_Request_d_setHeaderCall(&this->m_setHeader, this, key, val);
+    httpserver_HTTP_Request_d_setHeader_call(&this->m_setHeader, this, key, val);
 }
 
 void httpserver_HTTP_Request_setStatus(
@@ -127,7 +127,7 @@ void httpserver_HTTP_Request_setStatus(
     uint16_t status)
 {
     this->status = status;
-    httpserver_HTTP_Request_d_setStatusCall(&this->m_setStatus, this, status);
+    httpserver_HTTP_Request_d_setStatus_call(&this->m_setStatus, this, status);
 }
 
 uint16_t httpserver_HTTP_Request_getStatus(

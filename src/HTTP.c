@@ -43,7 +43,7 @@ void httpserver_HTTP_addService(
     httpserver_Service s)
 {
 
-    httpserver_ServiceListAppend(this->services, s);
+    httpserver_ServiceList_append(this->services, s);
     corto_ok("HTTP: registered '%s' service on '%s'",
         corto_fullpath(NULL, corto_typeof(s)),
         s->prefix);
@@ -68,7 +68,7 @@ void httpserver_HTTP_destruct(
     httpserver_HTTP this)
 {
 
-    httpserver_HTTP_set(this->port, NULL);
+    httpserver_HTTP_set_server(this->port, NULL);
 
 }
 
@@ -83,7 +83,7 @@ void httpserver_HTTP_doClose(
         httpserver_Service_onClose(s, c);
     }
 
-    httpserver_HTTP_ConnectionListRemove(this->connections, c);
+    httpserver_HTTP_ConnectionList_remove(this->connections, c);
 }
 
 void httpserver_HTTP_doMessage(
@@ -105,7 +105,7 @@ void httpserver_HTTP_doOpen(
     httpserver_HTTP_Connection c)
 {
 
-    httpserver_HTTP_ConnectionListAppend(this->connections, c);
+    httpserver_HTTP_ConnectionList_append(this->connections, c);
 
     corto_iter it = corto_ll_iter(this->services);
     while (corto_iter_hasNext(&it)) {
@@ -176,7 +176,7 @@ void httpserver_HTTP_doRequest(
              * hosted relative to their endpoint, as follow-up requests will
              * include the path to the endpoint. */
             if (s->redirectEndpointToPath && prefix[0] && !trailingSlash && !uri[0]) {
-                corto_trace("auto-redirect '%s' to '%s/'", r->uri, r->uri);
+                corto_info("auto-redirect '%s' to '%s/'", r->uri, r->uri);
                 httpserver_HTTP_Request_setStatus(r, 301);
                 httpserver_HTTP_Request_setHeader(r, "Location", strarg(
                     "%s/", r->uri
@@ -243,7 +243,7 @@ void httpserver_HTTP_doRequest(
     corto_log_pop();
 }
 
-httpserver_HTTP httpserver_HTTP_get(
+httpserver_HTTP httpserver_HTTP_get_server(
     uint16_t port)
 {
     corto_int32 i = 0;
@@ -269,12 +269,12 @@ void httpserver_HTTP_removeService(
     httpserver_Service s)
 {
 
-    httpserver_ServiceListRemove(this->services, s);
+    httpserver_ServiceList_remove(this->services, s);
     corto_ok("HTTP: removed %s service", corto_fullpath(NULL, corto_typeof(s)));
 
 }
 
-bool httpserver_HTTP_set(
+bool httpserver_HTTP_set_server(
     uint16_t port,
     httpserver_HTTP server)
 {
