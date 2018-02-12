@@ -147,17 +147,9 @@ corto_string httpserver_typedescriptor(
     return corto_buffer_str(&walkData.b);
 }
 
-int httpserverMain(int argc, char *argv[]) {
+int cortomain(int argc, char *argv[]) {
     /* Insert code that must be run when component is loaded */
     CORTO_UNUSED(argc);
     CORTO_UNUSED(argv);
     return 0;
 }
-
-int cortomain(int argc, char *argv[]) {
-
-    /* Insert implementation */
-    
-    return 0;
-}
-
