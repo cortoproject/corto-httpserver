@@ -33,7 +33,7 @@ static const char* _server_HTTP_getMethodName(httpserver_HTTP_Method method)
     return NULL;
 }
 
-static corto_mutex_s serverLock = CORTO_MUTEX_INITIALIZER;
+static corto_mutex_s serverLock = CORTO_MUTEX_INIT;
 static struct {
     httpserver_HTTP server;
     corto_uint16 port;

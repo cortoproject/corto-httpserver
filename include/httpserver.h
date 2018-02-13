@@ -8,7 +8,6 @@
 #define CORTO_HTTPSERVER_H
 
 #include <corto/corto.h>
-#include <corto/corto.h>
 #include <corto/httpserver/_project.h>
 #include <corto/c/c.h>
 
