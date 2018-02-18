@@ -15,7 +15,7 @@ int16_t httpserver_Service_construct(
     while (!server) {
         server = httpserver_HTTP_get_server(httpserver_Service(this)->port);
         if (!server) {
-            server = httpserver_HTTP(httpserver_StandaloneHTTP__create(NULL, NULL, 
+            server = httpserver_HTTP(httpserver_StandaloneHTTP__create(NULL, NULL,
                 httpserver_Service(this)->port, 30, 5, FALSE));
             /* Server can be NULL if another thread registered a server for the
              * same port. Therefore, keep trying until a valid server object has
