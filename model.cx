@@ -23,7 +23,7 @@ class HTTP:/
     // a Request instance can live on the stack (overridable methods can only be
     // used on objects when RTTI is available).
     struct Request:/
-        // Delegate types
+        // Delegate types for Request
         void d_setHeader(Request r, string key, string val) delegate
         void d_setStatus(Request r, uint16 status) delegate
         void d_reply(Request r, string msg) delegate
@@ -45,6 +45,7 @@ class HTTP:/
 
         // Request members
         uri: string
+        body: string
         method: HTTP/Method
         conn: word, private|local
         file: bool, private|local
@@ -52,13 +53,21 @@ class HTTP:/
         ctx: word, private|local
         status: uint16
 
-        // Delegate members
+        // Delegate members (copied from server)
         m_setHeader: d_setHeader, private|local
         m_setStatus: d_setStatus, private|local
         m_reply: d_reply, private|local
         m_sendFile: d_sendfile, private|local
         m_getHeader: d_getHeader, private|local
         m_getVar: d_getVar, private|local
+
+    // Delegate members (copied to Request)
+    m_setHeader: Request/d_setHeader, private|local
+    m_setStatus: Request/d_setStatus, private|local
+    m_reply: Request/d_reply, private|local
+    m_sendFile: Request/d_sendfile, private|local
+    m_getHeader: Request/d_getHeader, private|local
+    m_getVar: Request/d_getVar, private|local
 
     port: uint16
     pollInterval: uint16
@@ -94,6 +103,7 @@ class HTTP:/
     void doMessage(HTTP/Connection c, string msg)
     void doPoll()
 
+    int16 construct()
     void destruct()
 
 // Standalone HTTP server

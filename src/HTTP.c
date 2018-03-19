@@ -233,11 +233,15 @@ void httpserver_HTTP_doRequest(
     }
 
     if (!handled) {
-        corto_string str = corto_asprintf("Resource not found: %s '%s'", _server_HTTP_getMethodName(r->method), r->uri);
+        corto_string str = corto_asprintf(
+            "Resource not found: %s '%s'",
+            _server_HTTP_getMethodName(r->method), r->uri);
         httpserver_HTTP_Request_setStatus(r, 404);
         httpserver_HTTP_Request_reply(r, str);
         corto_dealloc(str);
-        corto_warning("%s '%s' not matched (404)", _server_HTTP_getMethodName(r->method), r->uri);
+        corto_warning(
+            "%s '%s' not matched (404)",
+            _server_HTTP_getMethodName(r->method), r->uri);
     }
 
     corto_log_pop();
@@ -315,7 +319,10 @@ void httpserver_HTTP_write_v(
     httpserver_HTTP_Connection c,
     const char *msg)
 {
+}
 
-    /* << Insert implementation >> */
-
+int16_t httpserver_HTTP_construct(
+    httpserver_HTTP this)
+{
+    return 0;
 }
