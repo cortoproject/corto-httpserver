@@ -1,50 +1,39 @@
 /* This is a managed file. Do not delete this comment. */
 
 #include <corto/httpserver/httpserver.h>
+
+#define MAX_COOKIE_KEY_LENGTH (256)
+
 static
-corto_bool parseCookie(const char *header, const char *key, char * out, size_t *out_len)
+void httpserver_HTTP_Request_cookieGetVar(
+    const char *header,
+    const char *key,
+    const char **out,
+    size_t *out_len)
 {
-    corto_bool found = FALSE;
-    size_t size = strlen(key);
-    out[0] = '\0';
-    char *ptr = (char *)header;
-    while (ptr && *ptr != '\0') {
-        if (strncmp(ptr, key, size) == 0) {
-            ptr = ptr + size;
-            if ( *ptr == '=') {
-                ptr++;
-                size = strlen(ptr);
-                char *end = strchr(ptr, ';');
+    const char *ptr;
+    char buffer[MAX_COOKIE_KEY_LENGTH];
+    char ch, *bptr = buffer;
+
+    for (ptr = header; ptr && (ch = *ptr); ptr ++) {
+        if (ch != '=') {
+            *bptr = ch;
+            bptr ++;
+        } else {
+            *bptr = '\0';
+            if (!strcmp(buffer, key)) {
+                *out = ptr + 1;
+                char *end = strchr(ptr + 1, ';');
                 if (end) {
-                    size = end - ptr;
-                }
-
-                if (size < *out_len) {
-                    memcpy(out, ptr, size);
-                    out[size] = '\0';
+                    *out_len = end - ptr;
                 } else {
-                    *out_len = size + 1;
+                    *out_len = strlen(*out);
                 }
-
-                found = TRUE;
-                ptr = NULL;
                 break;
             }
-
+            ptr = strchr(ptr + 1, ';');
         }
-
-        ptr = strchr(ptr, ';');
-        if (ptr) {
-            ptr++;
-            while (*ptr == ' '){
-                ptr++;
-            }
-
-        }
-
     }
-
-    return found;
 }
 
 void httpserver_HTTP_Request_badRequest(
@@ -61,12 +50,16 @@ corto_string httpserver_HTTP_Request_getCookie(
     const char *key)
 {
     size_t size = 0;
-    char *result = NULL;
-    char *header = httpserver_HTTP_Request_getHeader(this, "Cookie");
+    const char *value = NULL;
+    char *result = NULL,
+         *header = httpserver_HTTP_Request_getHeader(this, "Cookie");
 
-    if (parseCookie(header, key, result, &size)) {
-        result = corto_alloc(size);
-        corto_assert(parseCookie(header, key, result, &size), "cookie disappeared :(");
+    httpserver_HTTP_Request_cookieGetVar(header, key, &value, &size);
+    
+    if (value) {
+        result = corto_alloc(size + 1);
+        strncpy(result, value, size);
+        result[size] = '\0';
     }
 
     return result;
