@@ -47,7 +47,7 @@ int cb_wsConnect(
         corto_assert_object(c);
     }
 
-    safe_httpserver_HTTP_doOpen(this, c);
+    safe_httpserver_HTTP_do_open(this, c);
     return 0;
 }
 
@@ -72,7 +72,7 @@ int cb_wsData(struct mg_connection *conn,
         char *msg = corto_alloc(len + 1);
         memcpy(msg, data, len);
         msg[len] = '\0';
-        safe_httpserver_HTTP_doMessage(this, c, msg);
+        safe_httpserver_HTTP_do_message(this, c, msg);
         corto_dealloc(msg);
     }
 
@@ -87,7 +87,7 @@ void cb_wsClose(
     const struct mg_request_info *req_info = mg_get_request_info(conn);
     httpserver_StandaloneHTTP this = req_info->user_data;
     httpserver_HTTP_Connection c = mg_get_user_connection_data(conn);
-    safe_httpserver_HTTP_doClose(this, c);
+    safe_httpserver_HTTP_do_close(this, c);
     corto_delete(c);
 }
 
@@ -188,7 +188,7 @@ corto_string cb_getVar(
 }
 
 static
-int cb_onRequest(
+int cb_on_request(
     struct mg_connection *conn,
     void *cbdata)
 {
@@ -222,7 +222,7 @@ int cb_onRequest(
     r.m_sendFile = this->super.m_sendFile;
     r.m_getVar = this->super.m_getVar;
 
-    if (req_info->content_length) {
+    if (req_info->content_length > 0) {
         /* If content length is set, obtain body directly */
         r.body = corto_alloc(req_info->content_length + 1);
         mg_read(conn, r.body, req_info->content_length);
@@ -240,7 +240,7 @@ int cb_onRequest(
     }
 
     /* Send request to services */
-    safe_httpserver_HTTP_doRequest(this, NULL, &r);
+    safe_httpserver_HTTP_do_request(this, NULL, &r);
 
     /* Append 'Connection: close' header */
     corto_buffer_appendstr(&ctx.headers, "Connection: close\r\n");
@@ -272,7 +272,7 @@ void* pollThread(
 {
     httpserver_StandaloneHTTP this = ctx;
     while (1) {
-        safe_httpserver_HTTP_doPoll(this);
+        safe_httpserver_HTTP_do_poll(this);
         if (this->exiting) {
             break;
         }
@@ -333,7 +333,7 @@ int16_t httpserver_StandaloneHTTP_construct(
     this->server = (corto_word)ctx;
 
     /* Add handler for requests */
-    mg_set_request_handler(ctx, "**", cb_onRequest, 0);
+    mg_set_request_handler(ctx, "**", cb_on_request, 0);
 
     /* Set websocket handlers */
     mg_set_websocket_handler(ctx,

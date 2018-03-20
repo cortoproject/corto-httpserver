@@ -13,7 +13,7 @@ int16_t httpserver_Files_construct(
     return corto_super_construct(this);
 }
 
-int16_t httpserver_Files_onRequest(
+int16_t httpserver_Files_on_request(
     httpserver_Files this,
     httpserver_HTTP_Connection c,
     httpserver_HTTP_Request *r,
