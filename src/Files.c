@@ -1,6 +1,7 @@
 /* This is a managed file. Do not delete this comment. */
 
 #include <corto/httpserver/httpserver.h>
+
 int16_t httpserver_Files_construct(
     httpserver_Files this)
 {
@@ -20,6 +21,7 @@ int16_t httpserver_Files_on_request(
     const char *uri)
 {
     const char *request = uri;
+    int16_t result = 1;
 
     if (!uri || !strlen(uri) || !strcmp(uri, "/")) {
         request = "index.html";
@@ -29,6 +31,7 @@ int16_t httpserver_Files_on_request(
         "%s/%s",
         this->path,
         request);
+
     if (corto_file_test("%s", file)) {
         corto_trace("Files: serving '%s'", file);
         httpserver_HTTP_Request_sendfile(r, file);
@@ -37,8 +40,9 @@ int16_t httpserver_Files_on_request(
         httpserver_HTTP_Request_setStatus(r, 404);
         httpserver_HTTP_Request_reply(r, msg);
         corto_dealloc(msg);
+        result = 0;
     }
 
     corto_dealloc(file);
-    return 1;
+    return result;
 }

@@ -68,7 +68,7 @@ corto_int16 httpserver_typedescriptorSer_member(
     void *userData)
 {
     httpserver_typedescriptorSer_t *data = userData;
-    corto_member m = info->is.member.t;
+    corto_member m = info->is.member.member;
     if (!data->first) {
         corto_buffer_appendstr(&data->b, ",");
     } else {
