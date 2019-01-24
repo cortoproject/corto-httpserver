@@ -1,13 +1,14 @@
 /* This is a managed file. Do not delete this comment. */
 
 #include <src/civetweb.h>
-#include <corto/httpserver/httpserver.h>
+#include <corto.httpserver>
+
 #define DOCUMENT_ROOT "."
 
 static int
 cb_logMessage(const struct mg_connection *conn, const char *msg)
 {
-    corto_info("StandaloneHTTP: %s", (char*)msg);
+    ut_info("StandaloneHTTP: %s", (char*)msg);
     return 1;
 }
 
@@ -36,7 +37,7 @@ int cb_wsConnect(
     const struct mg_request_info *req_info = mg_get_request_info(conn);
     httpserver_StandaloneHTTP this = req_info->user_data;
     if (this) {
-        corto_assert_object(this);
+        ut_assert_object(this);
     }
 
     if (!c) {
@@ -44,7 +45,7 @@ int cb_wsConnect(
         c->conn = (corto_word)conn;
         mg_set_user_connection_data((struct mg_connection *)conn, c);
     } else {
-        corto_assert_object(c);
+        ut_assert_object(c);
     }
 
     safe_httpserver_HTTP_do_open(this, c);
@@ -93,8 +94,8 @@ void cb_wsClose(
 
 struct RequestCtx {
     corto_uint16 status;
-    corto_buffer headers;
-    corto_buffer msg;
+    ut_strbuf headers;
+    ut_strbuf msg;
 };
 
 static
@@ -104,7 +105,7 @@ void cb_setHeader(
     corto_string val)
 {
     struct RequestCtx *ctx = (struct RequestCtx*)r->ctx;
-    corto_buffer_append(&ctx->headers, "%s: %s\r\n", key, val);
+    ut_strbuf_append(&ctx->headers, "%s: %s\r\n", key, val);
 }
 
 static
@@ -130,7 +131,7 @@ void cb_reply(
     corto_string msg)
 {
     struct RequestCtx *ctx = (struct RequestCtx*)r->ctx;
-    corto_buffer_appendstr(&ctx->msg, msg);
+    ut_strbuf_appendstr(&ctx->msg, msg);
 }
 
 static
@@ -173,15 +174,15 @@ corto_string cb_getVar(
             data = NULL;
         } else {
             if (!r->garbage) {
-                r->garbage = corto_ll_new();
+                r->garbage = ut_ll_new();
             }
-            corto_ll_append(r->garbage, data);
+            ut_ll_append(r->garbage, data);
         }
     }
 
     /* Never return a NULL result */
     if (!data) {
-        data = corto_strdup("");
+        data = ut_strdup("");
     }
 
     return data;
@@ -197,12 +198,12 @@ int cb_on_request(
     httpserver_StandaloneHTTP this = req_info->user_data;
     httpserver_HTTP_Method method = methodFromStr(req_info->request_method);
 
-    corto_assert(this != NULL, "server parameter not set");
+    ut_assert(this != NULL, "server parameter not set");
 
     struct RequestCtx ctx = {
         .status = 200,
-        .headers = CORTO_BUFFER_INIT,
-        .msg = CORTO_BUFFER_INIT
+        .headers = UT_STRBUF_INIT,
+        .msg = UT_STRBUF_INIT
     };
 
     httpserver_HTTP_Request r = {
@@ -229,34 +230,34 @@ int cb_on_request(
         r.body[req_info->content_length] = '\0';
     } else {
         /* Large bodies can be sent in multiple chunks */
-        corto_buffer body_buffer = CORTO_BUFFER_INIT;
+        ut_strbuf body_buffer = UT_STRBUF_INIT;
         char buf[256];
         int read = mg_read(conn, buf, sizeof(buf));
         while (read > 0) {
-            corto_buffer_append(&body_buffer, buf);
+            ut_strbuf_append(&body_buffer, buf);
             read = mg_read(conn, buf, sizeof(buf));
         }
-        r.body = corto_buffer_str(&body_buffer);
+        r.body = ut_strbuf_get(&body_buffer);
     }
 
     /* Send request to services */
     safe_httpserver_HTTP_do_request(this, NULL, &r);
 
     /* Append 'Connection: close' header */
-    corto_buffer_appendstr(&ctx.headers, "Connection: close\r\n");
+    ut_strbuf_appendstr(&ctx.headers, "Connection: close\r\n");
 
     /* Send message */
-    char *headers = corto_buffer_str(&ctx.headers);
-    char *msg = corto_buffer_str(&ctx.msg);
+    char *headers = ut_strbuf_get(&ctx.headers);
+    char *msg = ut_strbuf_get(&ctx.msg);
     mg_printf(conn, "HTTP/1.1 %d OK\r\n%s\r\n%s", ctx.status, headers, msg);
 
     /* Cleanup any strings from request */
     if (r.garbage) {
-        corto_iter it = corto_ll_iter(r.garbage);
-        while (corto_iter_hasNext(&it)) {
-            corto_dealloc(corto_iter_next(&it));
+        ut_iter it = ut_ll_iter(r.garbage);
+        while (ut_iter_hasNext(&it)) {
+            corto_dealloc(ut_iter_next(&it));
         }
-        corto_ll_free(r.garbage);
+        ut_ll_free(r.garbage);
     }
 
     if (r.body) {
@@ -276,7 +277,7 @@ void* pollThread(
         if (this->exiting) {
             break;
         }
-        corto_sleep(0, httpserver_HTTP(this)->pollInterval * 1000000);
+        ut_sleep(0, httpserver_HTTP(this)->pollInterval * 1000000);
     }
 
     return NULL;
@@ -301,19 +302,19 @@ int16_t httpserver_StandaloneHTTP_construct(
     struct mg_callbacks callbacks;
     struct mg_context *ctx;
     if (!mg_check_feature(8)) {
-        corto_trace("StandaloneHTTP: IPv6 not supported");
+        ut_trace("StandaloneHTTP: IPv6 not supported");
     }
 
     if (!mg_check_feature(16)) {
-        corto_trace("StandaloneHTTP: websockets not supported");
+        ut_trace("StandaloneHTTP: websockets not supported");
     }
 
     if (!mg_check_feature(2)) {
-        corto_trace("StandaloneHTTP: SSL not supported");
+        ut_trace("StandaloneHTTP: SSL not supported");
     }
 
     if (!safe_httpserver_HTTP_set_server(httpserver_HTTP(this)->port, this)) {
-        corto_throw("port %d already occupied by other server",
+        ut_throw("port %d already occupied by other server",
             httpserver_HTTP(this)->port);
         goto error;
     }
@@ -345,7 +346,7 @@ int16_t httpserver_StandaloneHTTP_construct(
          0);
 
     /* Start thread to emit poll signal */
-    this->thread = (corto_word)corto_thread_new(
+    this->thread = (corto_word)ut_thread_new(
         pollThread,
         this);
 
@@ -360,7 +361,7 @@ void httpserver_StandaloneHTTP_destruct(
     this->exiting = TRUE;
 
     mg_stop((struct mg_context*)this->server);
-    corto_thread_join((corto_thread)this->thread, NULL);
+    ut_thread_join((ut_thread)this->thread, NULL);
     corto_super_destruct(this);
 }
 

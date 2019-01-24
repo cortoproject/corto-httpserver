@@ -1,6 +1,7 @@
 /* This is a managed file. Do not delete this comment. */
 
-#include <corto/httpserver/httpserver.h>
+#include <corto.httpserver>
+
 int16_t httpserver_StandaloneHTTPS_construct(
     httpserver_StandaloneHTTPS this)
 {
