@@ -1,6 +1,6 @@
 /* This is a managed file. Do not delete this comment. */
 
-#include <corto/httpserver/httpserver.h>
+#include <corto.httpserver>
 
 #define MAX_COOKIE_KEY_LENGTH (256)
 
@@ -55,7 +55,7 @@ corto_string httpserver_HTTP_Request_getCookie(
          *header = httpserver_HTTP_Request_getHeader(this, "Cookie");
 
     httpserver_HTTP_Request_cookieGetVar(header, key, &value, &size);
-    
+
     if (value) {
         result = corto_alloc(size + 1);
         strncpy(result, value, size);
@@ -102,7 +102,7 @@ void httpserver_HTTP_Request_setCookie(
     const char *key,
     const char *value)
 {
-    char *cookie = corto_asprintf("%s=%s", key, value);
+    char *cookie = ut_asprintf("%s=%s", key, value);
     httpserver_HTTP_Request_setHeader(this, "Set-Cookie", cookie);
     corto_dealloc(cookie);
 }

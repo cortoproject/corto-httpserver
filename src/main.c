@@ -1,6 +1,7 @@
 /* This is a managed file. Do not delete this comment. */
 
-#include <corto/httpserver/httpserver.h>
+#include <corto.httpserver>
+
 corto_string httpserver_random(
     uint16_t n)
 {
@@ -19,7 +20,7 @@ corto_string httpserver_random(
 }
 
 typedef struct httpserver_typedescriptorSer_t {
-    corto_buffer b;
+    ut_strbuf b;
     corto_bool first;
     corto_string prefix;
 } httpserver_typedescriptorSer_t;
@@ -29,7 +30,7 @@ corto_int16 httpserver_typedescriptorSer_void(
     void *userData)
 {
     httpserver_typedescriptorSer_t *data = userData;
-    corto_buffer_append(&data->b, "null");
+    ut_strbuf_append(&data->b, "null");
     return 0;
 }
 
@@ -39,7 +40,7 @@ corto_int16 httpserver_typedescriptorSer_primitive(
     void *userData)
 {
     httpserver_typedescriptorSer_t *data = userData;
-    corto_buffer_append(&data->b, "%d", corto_primitive(corto_value_typeof(info))->kind);
+    ut_strbuf_append(&data->b, "%d", corto_primitive(corto_value_typeof(info))->kind);
     return 0;
 }
 
@@ -49,7 +50,7 @@ corto_int16 httpserver_typedescriptorSer_reference(
     void *userData)
 {
     httpserver_typedescriptorSer_t *data = userData;
-    corto_buffer_append(&data->b, "9");
+    ut_strbuf_append(&data->b, "9");
     return 0;
 }
 
@@ -70,12 +71,12 @@ corto_int16 httpserver_typedescriptorSer_member(
     httpserver_typedescriptorSer_t *data = userData;
     corto_member m = info->is.member.member;
     if (!data->first) {
-        corto_buffer_appendstr(&data->b, ",");
+        ut_strbuf_appendstr(&data->b, ",");
     } else {
         data->first = FALSE;
     }
 
-    corto_buffer_append(&data->b, "\"%s\":", corto_idof(m));
+    ut_strbuf_append(&data->b, "\"%s\":", corto_idof(m));
     return corto_walk_value(s, info, userData);
 }
 
@@ -85,7 +86,7 @@ corto_int16 httpserver_typedescriptorSer_base(
     void *userData)
 {
     httpserver_typedescriptorSer_t *data = userData;
-    corto_buffer_append(&data->b, "\"super\":");
+    ut_strbuf_append(&data->b, "\"super\":");
     data->first = FALSE;
     return corto_walk_value(s, info, userData);
 }
@@ -96,12 +97,12 @@ corto_int16 httpserver_typedescriptorSer_composite(
     void *userData)
 {
     httpserver_typedescriptorSer_t *data = userData;
-    corto_buffer_appendstr(&data->b, "{");
+    ut_strbuf_appendstr(&data->b, "{");
     corto_bool prev = data->first;
     data->first = TRUE;
     corto_int16 result = corto_walk_members(s, info, userData);
     data->first = prev;
-    corto_buffer_appendstr(&data->b, "}");
+    ut_strbuf_appendstr(&data->b, "}");
     return result;
 }
 
@@ -111,12 +112,12 @@ corto_int16 httpserver_typedescriptorSer_collection(
     void *userData)
 {
     httpserver_typedescriptorSer_t *data = userData;
-    corto_buffer_appendstr(&data->b, "[");
+    ut_strbuf_appendstr(&data->b, "[");
     corto_bool prev = data->first;
     data->first = TRUE;
     corto_int16 result = corto_walk_elements(s, info, userData);
     data->first = prev;
-    corto_buffer_appendstr(&data->b, "]");
+    ut_strbuf_appendstr(&data->b, "]");
     return result;
 }
 
@@ -142,9 +143,9 @@ corto_string httpserver_typedescriptor(
     corto_type type)
 {
     corto_walk_opt s = httpserver_typedescriptorSer();
-    httpserver_typedescriptorSer_t walkData = {CORTO_BUFFER_INIT, TRUE};
+    httpserver_typedescriptorSer_t walkData = {UT_STRBUF_INIT, TRUE};
     corto_metawalk(&s, type, &walkData);
-    return corto_buffer_str(&walkData.b);
+    return ut_strbuf_get(&walkData.b);
 }
 
 int cortomain(int argc, char *argv[]) {

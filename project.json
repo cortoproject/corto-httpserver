@@ -1,5 +1,5 @@
 {
-    "id": "corto/httpserver",
+    "id": "corto.httpserver",
     "type": "package",
     "value": {
         "author": "Sander Mertens",
@@ -7,9 +7,11 @@
         "repository": "https://github.com/cortoproject/httpserver",
         "license": "MIT",
         "description": "Framework for building HTTP-based services",
-        "version": "1.0.0",
+        "version": "1.0.0"
+    },
+    "lang.c": {
         "lib": ["pthread", "dl"],
-        "use": ["corto/httpserver/c"],
         "cflags": ["-DUSE_WEBSOCKET"]
-    }
+    },
+    "corto": { }
 }

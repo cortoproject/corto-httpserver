@@ -1,6 +1,6 @@
 /* This is a managed file. Do not delete this comment. */
 
-#include <corto/httpserver/httpserver.h>
+#include <corto.httpserver>
 
 int16_t httpserver_Files_construct(
     httpserver_Files this)
@@ -27,16 +27,16 @@ int16_t httpserver_Files_on_request(
         request = "index.html";
     }
 
-    char* file = corto_asprintf(
+    char* file = ut_asprintf(
         "%s/%s",
         this->path,
         request);
 
-    if (corto_file_test("%s", file)) {
-        corto_trace("Files: serving '%s'", file);
+    if (ut_file_test("%s", file)) {
+        ut_trace("Files: serving '%s'", file);
         httpserver_HTTP_Request_sendfile(r, file);
     } else {
-        corto_string msg = corto_asprintf("Resource '%s' not found", uri);
+        corto_string msg = ut_asprintf("Resource '%s' not found", uri);
         httpserver_HTTP_Request_setStatus(r, 404);
         httpserver_HTTP_Request_reply(r, msg);
         corto_dealloc(msg);
